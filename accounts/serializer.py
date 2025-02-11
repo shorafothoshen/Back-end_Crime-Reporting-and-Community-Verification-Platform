@@ -74,7 +74,7 @@ class SendPasswordResetEmailSerializer(serializers.Serializer):
             print("User UID:", uid)
             token=PasswordResetTokenGenerator().make_token(user)
             print("User Token: ", token)
-            link="http://127.0.0.1:8000/api/account/"+uid+"/"+token
+            link="https://eradicat-crimes-b8w4.onrender.com/api/account/"+uid+"/"+token
             email_subject = "Change Password"
             email_body = render_to_string('registation_confirm_email.html', {'confirm_link' : link})
             email = EmailMultiAlternatives(email_subject , '', to=[user.email])

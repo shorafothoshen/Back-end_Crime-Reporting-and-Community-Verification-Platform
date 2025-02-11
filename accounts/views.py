@@ -59,7 +59,7 @@ class SendOTPView(APIView):
         token_generator = PasswordResetTokenGenerator()
         token = token_generator.make_token(user) 
         uid = urlsafe_base64_encode(force_bytes(user.pk))
-        confirm_link = f"https://online-school-989z.onrender.com/api/account/active/{uid}/{token}"
+        confirm_link = f"https://eradicat-crimes-b8w4.onrender.com/api/account/active/{uid}/{token}"
         email_subject = "Confirm Your Email"
         email_body = render_to_string('registation_confirm_email.html', {'confirm_link': confirm_link})
         email = EmailMultiAlternatives(email_subject, '', to=[user.email])

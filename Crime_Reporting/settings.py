@@ -24,7 +24,6 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-# SECRET_KEY = 'django-insecure-gv^zpc96*nka!v^+pxop=(eky*eg@+l2aut807+uz%i8e@%70('
 
 SECRET_KEY = env("SECRET_KEY")
 
@@ -35,7 +34,7 @@ DEBUG = True
 ALLOWED_HOSTS = ['*']
 
 CSRF_TRUSTED_ORIGINS = [
-    # 'https://online-school-989z.onrender.com',
+    'https://eradicat-crimes-b8w4.onrender.com/',
     'https://*.127.0.0.1',
     'http://127.0.0.1:5500',
 ]
