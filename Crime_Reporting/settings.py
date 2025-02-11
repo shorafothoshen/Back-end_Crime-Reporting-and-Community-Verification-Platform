@@ -34,7 +34,7 @@ DEBUG = True
 ALLOWED_HOSTS = ['*']
 
 CSRF_TRUSTED_ORIGINS = [
-    'https://eradicat-crimes-b8w4.onrender.com/',
+    'https://eradicat-crimes-b8w4.onrender.com',
     'https://*.127.0.0.1',
     'http://127.0.0.1:5500',
 ]
