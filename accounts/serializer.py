@@ -42,7 +42,7 @@ class LoginSerializer(serializers.ModelSerializer):
 class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model=User
-        fields=['id','first_name', 'last_name', 'email', 'gender','phone_number',"image"]
+        fields=['id','first_name', 'last_name', 'email', 'gender','phone_number','is_verified',"image"]
 
 
 class UserPasswordChangeSerializer(serializers.Serializer):
@@ -74,7 +74,7 @@ class SendPasswordResetEmailSerializer(serializers.Serializer):
             print("User UID:", uid)
             token=PasswordResetTokenGenerator().make_token(user)
             print("User Token: ", token)
-            link="https://eradicat-crimes-b8w4.onrender.com/api/account/"+uid+"/"+token
+            link="https://eradicat-crimes-b8w4.onrender.com/accounts/reset-password/"+uid+"/"+token
             email_subject = "Change Password"
             email_body = render_to_string('registation_confirm_email.html', {'confirm_link' : link})
             email = EmailMultiAlternatives(email_subject , '', to=[user.email])
@@ -104,3 +104,14 @@ class UserPasswordResetSerializer(serializers.Serializer):
         user.set_password(password)
         user.save()
         return attrs
+    
+class SendOTPSerializer(serializers.Serializer):
+    phone_number = serializers.CharField(max_length=15)
+
+    def validate_phone_number(self, value):
+        if not value.isdigit():
+            raise serializers.ValidationError("Phone number must contain only digits.")
+        if len(value) < 10 or len(value) > 15:
+            raise serializers.ValidationError("Phone number must be between 10 and 15 digits.")
+        return value
+
