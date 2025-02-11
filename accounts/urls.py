@@ -19,6 +19,7 @@ urlpatterns = [
     path('active/<uid64>/<token>/', views.activate, name = 'activate'),
     path('successful-email-verified/', views.successful, name='verified_success'),
     path('unsuccessful-email-verified/',views.unsuccessful, name='verified_unsuccess'),
+    # path('send-otp-varification/')
     path("changepassword/",views.UserPasswordChangeApiView.as_view(),name="changepassword"),
     path("send-reset-password-email/",views.SendPasswordResetEmailApiView.as_view(), name="sendresetpasswordemail"),
     path("reset-password/<uid>/<token>/",views.UserPasswordResetApiView.as_view(), name="resetPassword"),

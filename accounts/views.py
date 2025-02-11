@@ -25,7 +25,8 @@ from rest_framework.authentication import SessionAuthentication
 from rest_framework.permissions import IsAuthenticated,AllowAny
 from django.contrib.auth import authenticate,login,logout
 from datetime import datetime, timedelta
-from .serializer import RegisterSerializer,LoginSerializer,UserProfileSerializer,UserPasswordChangeSerializer,SendPasswordResetEmailSerializer,UserPasswordResetSerializer
+from django.utils import timezone
+from .serializer import RegisterSerializer,LoginSerializer,UserProfileSerializer,UserPasswordChangeSerializer,SendPasswordResetEmailSerializer,UserPasswordResetSerializer,SendOTPSerializer
 # Create your views here.
 User=get_user_model()
 import random
@@ -52,33 +53,30 @@ class UserRegisationView(CreateAPIView):
 
 class SendOTPView(APIView):
     def post(self, request):
-        phone_number = request.data.get('phone_number')
+        serializer = SendOTPSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        phone_number = serializer.validated_data['phone_number']
         user, created = User.objects.get_or_create(phone_number=phone_number)
         otp = generate_otp()
         user.otp = otp
-        token_generator = PasswordResetTokenGenerator()
-        token = token_generator.make_token(user) 
-        uid = urlsafe_base64_encode(force_bytes(user.pk))
-        confirm_link = f"https://eradicat-crimes-b8w4.onrender.com/api/account/active/{uid}/{token}"
-        email_subject = "Confirm Your Email"
-        email_body = render_to_string('registation_confirm_email.html', {'confirm_link': confirm_link})
-        email = EmailMultiAlternatives(email_subject, '', to=[user.email])
-        email.attach_alternative(email_body, "text/html")
-        email.send()   
-        send_sms(phone_number,otp)
-        user.otp_expiry = datetime.now() + timedelta(minutes=5)  # 5 minutes validity
+        user.otp_expiry = timezone.now() + timedelta(minutes=5)  # 5 minutes validity
         user.save()
+        # Send SMS with OTP
+        send_sms(phone_number, otp)
 
         return Response({"message": "OTP sent successfully"}, status=status.HTTP_200_OK)
 
+
 def send_sms(phone_number, otp):
     client = Client(settings.ACCOUNT_SID, settings.AUTH_TOKEN)
-
+    print(otp)
     message = client.messages.create(
         body=f"Your OTP code is {otp}. Please do not share it.",
         from_='+8801581602809',
         to=phone_number
     )
+    print(message.sid)
     return message.sid
 
 
@@ -122,7 +120,7 @@ class LoginAPIView(APIView):
                 refresh = RefreshToken.for_user(user)
                 access_token = str(refresh.access_token)
                 login(request, user)
-
+                
                 role = 'user'
                 if user.is_superuser or user.is_staff:
                     role = 'admin'
@@ -135,7 +133,8 @@ class LoginAPIView(APIView):
                     'access_token': access_token,
                     'refresh_token': str(refresh),
                     'user_id': user.id,
-                    'role': role
+                    'role': role,
+                    'ban':user.is_active
                 }, status=status.HTTP_200_OK)
             else:
                 return Response({'error': {"non_field_errors": ["Email or Password is not valid"]}}, status=status.HTTP_401_UNAUTHORIZED)
